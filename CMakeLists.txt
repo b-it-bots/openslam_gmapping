@@ -1,24 +1,18 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5)
 project(openslam_gmapping)
 
-## Find catkin macros and libraries
-find_package(catkin REQUIRED)
+set(CMAKE_CXX_STANDARD 14)
+
+find_package(ament_cmake REQUIRED)
 
 include(GenerateExportHeader)
-set(EXPORT_HEADER_DIR "${CATKIN_DEVEL_PREFIX}/include")
-file(MAKE_DIRECTORY "${EXPORT_HEADER_DIR}")
+set(EXPORT_HEADER_DIR "include")
 
 ###################################
 ## catkin specific configuration ##
 ###################################
 ## The catkin_package macro generates cmake config files for your package
 ## Declare things to be passed to dependent projects
-catkin_package(
-  INCLUDE_DIRS
-    include
-    ${EXPORT_HEADER_DIR}
-  LIBRARIES utils sensor_base sensor_odometry sensor_range log configfile scanmatcher gridfastslam
-)
 
 ###########
 ## Build ##
@@ -26,10 +20,9 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-include_directories(
-  include
-  ${EXPORT_HEADER_DIR}
-)
+#include_directories(
+#  include
+#)
 
 #SUBDIRS=utils sensor log configfile scanmatcher gridfastslam gui
 
@@ -37,27 +30,46 @@ include_directories(
 # OBJS= stat.o  movement.o
 # APPS= autoptr_test #stat_test
 # CPPFLAGS+= -DFSLINE
-add_library(utils
+add_library(utils SHARED
   utils/stat.cpp
   utils/movement.cpp)
+target_include_directories(utils PUBLIC
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>"
+  "$<INSTALL_INTERFACE:include/>")
 add_executable(autoptr_test
   utils/autoptr_test.cpp)
+target_include_directories(autoptr_test PUBLIC
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>"
+)
 
 # sensor/
 # SUBDIRS=sensor_base sensor_odometry sensor_range
 
 # sensor/sensor_base/
 # OBJS= sensor.o sensorreading.o
-add_library(sensor_base
+add_library(sensor_base SHARED
   sensor/sensor_base/sensor.cpp
   sensor/sensor_base/sensorreading.cpp)
 
+target_include_directories(sensor_base PUBLIC
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>"
+  "$<INSTALL_INTERFACE:include/>")
 # sensor/sensor_odometry/
 # LDFLAGS+= -lsensor_base
 # OBJS= odometrysensor.o odometryreading.o
-add_library(sensor_odometry
+add_library(sensor_odometry SHARED
   sensor/sensor_odometry/odometrysensor.cpp
   sensor/sensor_odometry/odometryreading.cpp)
+target_include_directories(sensor_odometry PUBLIC
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>"
+  "$<INSTALL_INTERFACE:include/>")
 target_link_libraries(sensor_odometry
   sensor_base)
 
@@ -65,9 +77,14 @@ target_link_libraries(sensor_odometry
 # CPPFLAGS+= -I../
 # LDFLAGS+= -lsensor_base
 # OBJS= rangesensor.o rangereading.o 
-add_library(sensor_range
+add_library(sensor_range SHARED
   sensor/sensor_range/rangesensor.cpp
   sensor/sensor_range/rangereading.cpp)
+target_include_directories(sensor_range PUBLIC
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>"
+  "$<INSTALL_INTERFACE:include/>")
 target_link_libraries(sensor_range
   sensor_base)
 
@@ -76,11 +93,16 @@ target_link_libraries(sensor_range
 # OBJS= configuration.o carmenconfiguration.o sensorlog.o sensorstream.o
 # APPS= log_test log_plot scanstudio2carmen rdk2carmen
 # LDFLAGS+=  -lsensor_range -lsensor_odometry -lsensor_base 
-add_library(log
+add_library(log SHARED
   log/configuration.cpp
   log/carmenconfiguration.cpp
   log/sensorlog.cpp
   log/sensorstream.cpp)
+target_include_directories(log PUBLIC
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>"
+  "$<INSTALL_INTERFACE:include/>")
 add_executable(log_test
   log/log_test.cpp)
 add_executable(log_plot
@@ -99,8 +121,13 @@ target_link_libraries(log
 # configfile/
 # OBJS= configfile.o 
 # APPS= configfile_test 
-add_library(configfile
+add_library(configfile SHARED
   configfile/configfile.cpp)
+target_include_directories(configfile PUBLIC
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>"
+  "$<INSTALL_INTERFACE:include/>")
 add_executable(configfile_test
   configfile/configfile_test.cpp)
 target_link_libraries(configfile_test configfile)
@@ -110,11 +137,16 @@ target_link_libraries(configfile_test configfile)
 # OBJS= smmap.o scanmatcher.o scanmatcherprocessor.o eig3.o
 # APPS= scanmatch_test icptest
 # LDFLAGS+= -llog -lsensor_range -lsensor_odometry -lsensor_base -lutils
-add_library(scanmatcher
+add_library(scanmatcher SHARED
   scanmatcher/smmap.cpp
   scanmatcher/scanmatcher.cpp
   scanmatcher/scanmatcherprocessor.cpp
   scanmatcher/eig3.cpp)
+target_include_directories(scanmatcher PUBLIC
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>"
+  "$<INSTALL_INTERFACE:include/>")
 add_executable(scanmatch_test
   scanmatcher/scanmatch_test.cpp)
 add_executable(icptest
@@ -129,11 +161,16 @@ target_link_libraries(scanmatcher
 # OBJS= gridslamprocessor_tree.o motionmodel.o gridslamprocessor.o gfsreader.o
 # APPS= gfs2log gfs2rec gfs2neff #gfs2stat
 # LDFLAGS+=  -lscanmatcher -llog -lsensor_range -lsensor_odometry -lsensor_base -lutils
-add_library(gridfastslam
+add_library(gridfastslam SHARED
   gridfastslam/gridslamprocessor_tree.cpp
   gridfastslam/motionmodel.cpp
   gridfastslam/gridslamprocessor.cpp
   gridfastslam/gfsreader.cpp)
+target_include_directories(gridfastslam PUBLIC
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>"
+  "$<INSTALL_INTERFACE:include/>")
 add_executable(gfs2log
   gridfastslam/gfs2log.cpp)
 add_executable(gfs2rec
@@ -162,18 +199,19 @@ target_link_libraries(gridfastslam
 
 ## Mark executables and/or libraries for installation
 install(TARGETS utils sensor_base sensor_odometry sensor_range log configfile scanmatcher gridfastslam
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
+  EXPORT export_${PROJECT_NAME}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
 )
 
 install(TARGETS autoptr_test log_test log_plot scanstudio2carmen rdk2carmen configfile_test scanmatch_test icptest gfs2log gfs2rec gfs2neff
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
 ## Mark cpp header files for installation
 install(DIRECTORY include/gmapping
-  DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION}
+  DESTINATION include
   FILES_MATCHING PATTERN "*.h*"
   PATTERN ".svn" EXCLUDE
 )
@@ -196,18 +234,62 @@ generate_export_header(gridfastslam
   EXPORT_FILE_NAME ${EXPORT_HEADER_DIR}/gmapping/gridfastslam/gridfastslam_export.h)
 
 install(DIRECTORY
-  ${EXPORT_HEADER_DIR}/
-  DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION})
+  include/
+  DESTINATION include
+)
 
-#############
-## Testing ##
-#############
 
-## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_openslam_gmapping.cpp)
-# if(TARGET ${PROJECT_NAME}-test)
-#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
-# endif()
+install(FILES
+   ${CMAKE_CURRENT_BINARY_DIR}/include/gmapping/utils/utils_export.h
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/include/gmapping/utils/
+)
 
-## Add folders to be run by python nosetests
-# catkin_add_nosetests(test)
+install(FILES
+   ${CMAKE_CURRENT_BINARY_DIR}/include/gmapping/sensor/sensor_base/sensor_base_export.h
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/include/gmapping/sensor/sensor_base/
+)
+
+install(FILES
+   ${CMAKE_CURRENT_BINARY_DIR}/include/gmapping/sensor/sensor_odometry/sensor_odometry_export.h
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/include/gmapping/sensor/sensor_odometry/
+)
+
+install(FILES
+   ${CMAKE_CURRENT_BINARY_DIR}/include/gmapping/sensor/sensor_range/sensor_range_export.h
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/include/gmapping/sensor/sensor_range/
+)
+
+install(FILES
+   ${CMAKE_CURRENT_BINARY_DIR}/include/gmapping/log/log_export.h
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/include/gmapping/log
+)
+
+install(FILES
+   ${CMAKE_CURRENT_BINARY_DIR}/include/gmapping/configfile/configfile_export.h
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/include/gmapping/configfile
+)
+install(FILES
+   ${CMAKE_CURRENT_BINARY_DIR}/include/gmapping/scanmatcher/scanmatcher_export.h
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/include/gmapping/scanmatcher
+)
+
+install(FILES
+   ${CMAKE_CURRENT_BINARY_DIR}/include/gmapping/gridfastslam/gridfastslam_export.h
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/include/gmapping/gridfastslam
+)
+
+ament_export_include_directories(
+    include
+)
+ament_export_libraries(
+    utils
+    sensor_base
+    sensor_odometry
+    sensor_range
+    log
+    configfile
+    scanmatcher
+    gridfastslam
+)
+ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
+ament_package()
